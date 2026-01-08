@@ -11,40 +11,71 @@ const Character = {
     const color = character.color || '#8b5fbf';
     const style = character.style || 'round';
 
+    // Draw legs
+    ctx.fillStyle = '#5a5a7a';
+    ctx.fillRect(size * 0.3, size * 0.7, size * 0.15, size * 0.25);
+    ctx.fillRect(size * 0.55, size * 0.7, size * 0.15, size * 0.25);
+
     // Draw body
     ctx.fillStyle = color;
     if (style === 'round') {
-      ctx.beginPath();
-      ctx.arc(size / 2, size / 2, size / 2 - 5, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.fillRect(size * 0.25, size * 0.35, size * 0.5, size * 0.4);
     } else {
-      ctx.fillRect(5, 5, size - 10, size - 10);
+      ctx.fillRect(size * 0.25, size * 0.35, size * 0.5, size * 0.4);
+    }
+    
+    // Draw outline for body
+    ctx.strokeStyle = '#2a2a4a';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(size * 0.25, size * 0.35, size * 0.5, size * 0.4);
+
+    // Draw head
+    ctx.fillStyle = color;
+    if (style === 'round') {
+      ctx.beginPath();
+      ctx.arc(size / 2, size * 0.3, size * 0.2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#2a2a4a';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    } else {
+      ctx.fillRect(size * 0.3, size * 0.1, size * 0.4, size * 0.35);
+      ctx.strokeStyle = '#2a2a4a';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(size * 0.3, size * 0.1, size * 0.4, size * 0.35);
     }
 
     // Draw eyes
     ctx.fillStyle = '#ffffff';
-    const eyeSize = size / 8;
-    const eyeY = size / 2 - eyeSize / 2;
+    const eyeSize = size / 10;
+    const eyeY = size * 0.27;
     
     // Left eye
     ctx.beginPath();
-    ctx.arc(size / 3, eyeY, eyeSize, 0, Math.PI * 2);
+    ctx.arc(size * 0.4, eyeY, eyeSize, 0, Math.PI * 2);
     ctx.fill();
     
     // Right eye
     ctx.beginPath();
-    ctx.arc((2 * size) / 3, eyeY, eyeSize, 0, Math.PI * 2);
+    ctx.arc(size * 0.6, eyeY, eyeSize, 0, Math.PI * 2);
     ctx.fill();
 
     // Draw pupils
     ctx.fillStyle = '#000000';
     const pupilSize = eyeSize / 2;
     ctx.beginPath();
-    ctx.arc(size / 3, eyeY, pupilSize, 0, Math.PI * 2);
+    ctx.arc(size * 0.4, eyeY, pupilSize, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
-    ctx.arc((2 * size) / 3, eyeY, pupilSize, 0, Math.PI * 2);
+    ctx.arc(size * 0.6, eyeY, pupilSize, 0, Math.PI * 2);
     ctx.fill();
+    
+    // Draw simple smile
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(size / 2, size * 0.32, size * 0.12, 0.2, Math.PI - 0.2);
+    ctx.stroke();
 
     return canvas;
   },
