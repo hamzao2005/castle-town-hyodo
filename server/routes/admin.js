@@ -1,19 +1,9 @@
 const express = require('express');
 const User = require('../models/User');
 const { adminAuth } = require('../middleware/auth');
+const { sanitize } = require('../utils/sanitize');
 
 const router = express.Router();
-
-// Sanitize input to prevent XSS
-const sanitize = (str) => {
-  if (typeof str !== 'string') return str;
-  return str
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
-    .replace(/\//g, '&#x2F;');
-};
 
 // Move character
 router.put('/move/:userId', adminAuth, async (req, res) => {
