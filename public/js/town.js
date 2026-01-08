@@ -6,6 +6,12 @@ const Town = {
   selectedCharacter: null,
   moveMode: false,
   refreshInterval: null,
+  
+  // Isometric settings
+  tileWidth: 64,
+  tileHeight: 32,
+  gridWidth: 12,
+  gridHeight: 12,
 
   init() {
     this.canvas = document.getElementById('townCanvas');
@@ -20,9 +26,31 @@ const Town = {
   },
 
   resizeCanvas() {
-    this.canvas.width = this.canvas.offsetWidth;
-    this.canvas.height = this.canvas.offsetHeight;
+    this.canvas.width = 800;
+    this.canvas.height = 600;
     this.render();
+  },
+  
+  // Convert cartesian coordinates to isometric
+  cartesianToIsometric(x, y) {
+    return {
+      isoX: (x - y) * this.tileWidth / 2,
+      isoY: (x + y) * this.tileHeight / 2
+    };
+  },
+  
+  // Convert screen coordinates to grid coordinates
+  screenToGrid(screenX, screenY) {
+    const offsetX = this.canvas.width / 2;
+    const offsetY = 100;
+    
+    const relX = screenX - offsetX;
+    const relY = screenY - offsetY;
+    
+    const gridX = Math.floor((relX / this.tileWidth + relY / this.tileHeight));
+    const gridY = Math.floor((relY / this.tileHeight - relX / this.tileWidth));
+    
+    return { gridX, gridY };
   },
 
   async loadCharacters() {
@@ -43,106 +71,241 @@ const Town = {
     // Clear canvas
     this.ctx.clearRect(0, 0, width, height);
 
-    // Draw background (sky)
-    const gradient = this.ctx.createLinearGradient(0, 0, 0, height);
-    gradient.addColorStop(0, '#0a0a1a');
-    gradient.addColorStop(1, '#2a2a4a');
-    this.ctx.fillStyle = gradient;
+    // Draw background (black space)
+    this.ctx.fillStyle = '#000000';
     this.ctx.fillRect(0, 0, width, height);
 
-    // Draw stars
-    this.drawStars(width, height);
+    // Draw isometric room
+    this.drawIsometricRoom(width, height);
 
-    // Draw ground
-    const groundHeight = height * 0.4;
-    const groundGradient = this.ctx.createLinearGradient(0, height - groundHeight, 0, height);
-    groundGradient.addColorStop(0, '#2d4a3d');
-    groundGradient.addColorStop(1, '#1a3028');
-    this.ctx.fillStyle = groundGradient;
-    this.ctx.fillRect(0, height - groundHeight, width, groundHeight);
+    // Draw decorations
+    this.drawDecorations();
 
-    // Draw buildings
-    this.drawBuildings(width, height);
-
-    // Draw characters
-    this.characters.forEach(char => this.drawCharacter(char));
+    // Sort and draw characters by depth (Y position for proper layering)
+    const sortedCharacters = [...this.characters].sort((a, b) => {
+      return a.character.position.y - b.character.position.y;
+    });
+    
+    sortedCharacters.forEach(char => this.drawCharacter(char));
   },
-
-  drawStars(width, height) {
-    this.ctx.fillStyle = '#ffffff';
-    const starCount = 50;
+  
+  drawIsometricRoom(width, height) {
+    const offsetX = width / 2;
+    const offsetY = 100;
     
-    for (let i = 0; i < starCount; i++) {
-      const x = (i * 137.5) % width; // Pseudo-random distribution
-      const y = (i * 97.3) % (height * 0.6);
-      const size = (i % 3) + 1;
-      
-      this.ctx.beginPath();
-      this.ctx.arc(x, y, size, 0, Math.PI * 2);
-      this.ctx.fill();
-    }
-  },
-
-  drawBuildings(width, height) {
-    const groundY = height * 0.6;
-
-    // Castle (left)
-    this.ctx.fillStyle = '#5a4a7a';
-    this.ctx.fillRect(50, groundY - 200, 150, 200);
-    
-    // Castle towers
-    this.ctx.fillRect(40, groundY - 250, 40, 50);
-    this.ctx.fillRect(170, groundY - 250, 40, 50);
-    
-    // Castle windows
-    this.ctx.fillStyle = '#ffd700';
-    for (let i = 0; i < 3; i++) {
-      for (let j = 0; j < 4; j++) {
-        this.ctx.fillRect(70 + i * 35, groundY - 180 + j * 40, 20, 30);
+    // Draw floor tiles
+    for (let y = 0; y < this.gridHeight; y++) {
+      for (let x = 0; x < this.gridWidth; x++) {
+        const iso = this.cartesianToIsometric(x, y);
+        const screenX = offsetX + iso.isoX;
+        const screenY = offsetY + iso.isoY;
+        
+        this.drawFloorTile(screenX, screenY, (x + y) % 2 === 0);
       }
     }
-
-    // Shop (center)
-    this.ctx.fillStyle = '#8b6f47';
-    this.ctx.fillRect(width / 2 - 75, groundY - 120, 150, 120);
     
-    // Shop roof
-    this.ctx.fillStyle = '#6b4f37';
+    // Draw back wall (L-shaped)
+    this.drawWalls(offsetX, offsetY);
+    
+    // Draw windows on walls
+    this.drawWindows(offsetX, offsetY);
+  },
+  
+  drawFloorTile(x, y, isAlt) {
+    const w = this.tileWidth;
+    const h = this.tileHeight;
+    
+    // Draw diamond/rhombus shape
+    this.ctx.fillStyle = isAlt ? '#4A9B9B' : '#5AABAB';
+    this.ctx.strokeStyle = '#2A6B6B';
+    this.ctx.lineWidth = 1;
+    
     this.ctx.beginPath();
-    this.ctx.moveTo(width / 2 - 90, groundY - 120);
-    this.ctx.lineTo(width / 2, groundY - 170);
-    this.ctx.lineTo(width / 2 + 90, groundY - 120);
+    this.ctx.moveTo(x, y);
+    this.ctx.lineTo(x + w/2, y + h/2);
+    this.ctx.lineTo(x, y + h);
+    this.ctx.lineTo(x - w/2, y + h/2);
+    this.ctx.closePath();
     this.ctx.fill();
+    this.ctx.stroke();
+  },
+  
+  drawWalls(offsetX, offsetY) {
+    // Left wall
+    this.ctx.fillStyle = '#7ECFC0';
+    this.ctx.strokeStyle = '#2A6B6B';
+    this.ctx.lineWidth = 3;
     
-    // Shop sign
-    this.ctx.fillStyle = '#ffd700';
-    this.ctx.fillRect(width / 2 - 40, groundY - 100, 80, 30);
-    this.ctx.fillStyle = '#000000';
-    this.ctx.font = '12px "Press Start 2P"';
-    this.ctx.textAlign = 'center';
-    this.ctx.fillText('SHOP', width / 2, groundY - 78);
-
-    // House (right)
-    this.ctx.fillStyle = '#7a5a8a';
-    this.ctx.fillRect(width - 200, groundY - 150, 120, 150);
+    const leftWallPoints = [
+      { x: offsetX - this.tileWidth * 6, y: offsetY },
+      { x: offsetX, y: offsetY - this.tileHeight * 6 },
+      { x: offsetX, y: offsetY + this.tileHeight * 2 },
+      { x: offsetX - this.tileWidth * 6, y: offsetY + this.tileHeight * 8 }
+    ];
     
-    // House roof
-    this.ctx.fillStyle = '#5a3a6a';
     this.ctx.beginPath();
-    this.ctx.moveTo(width - 210, groundY - 150);
-    this.ctx.lineTo(width - 140, groundY - 200);
-    this.ctx.lineTo(width - 70, groundY - 150);
+    this.ctx.moveTo(leftWallPoints[0].x, leftWallPoints[0].y);
+    leftWallPoints.forEach(p => this.ctx.lineTo(p.x, p.y));
+    this.ctx.closePath();
     this.ctx.fill();
+    this.ctx.stroke();
     
-    // House door
-    this.ctx.fillStyle = '#3a2a4a';
-    this.ctx.fillRect(width - 175, groundY - 80, 40, 80);
+    // Right wall
+    const rightWallPoints = [
+      { x: offsetX, y: offsetY - this.tileHeight * 6 },
+      { x: offsetX + this.tileWidth * 6, y: offsetY },
+      { x: offsetX + this.tileWidth * 6, y: offsetY + this.tileHeight * 8 },
+      { x: offsetX, y: offsetY + this.tileHeight * 2 }
+    ];
+    
+    this.ctx.beginPath();
+    this.ctx.moveTo(rightWallPoints[0].x, rightWallPoints[0].y);
+    rightWallPoints.forEach(p => this.ctx.lineTo(p.x, p.y));
+    this.ctx.closePath();
+    this.ctx.fill();
+    this.ctx.stroke();
+  },
+  
+  drawWindows(offsetX, offsetY) {
+    // Windows on left wall
+    for (let i = 0; i < 3; i++) {
+      const x = offsetX - this.tileWidth * 5 + i * this.tileWidth * 2;
+      const y = offsetY + this.tileHeight * 2 + i * this.tileHeight;
+      
+      this.ctx.fillStyle = '#5AABAB';
+      this.ctx.strokeStyle = '#2A6B6B';
+      this.ctx.lineWidth = 2;
+      this.ctx.fillRect(x, y, 30, 40);
+      this.ctx.strokeRect(x, y, 30, 40);
+      
+      // Window panes
+      this.ctx.strokeStyle = '#2A6B6B';
+      this.ctx.lineWidth = 1;
+      this.ctx.beginPath();
+      this.ctx.moveTo(x + 15, y);
+      this.ctx.lineTo(x + 15, y + 40);
+      this.ctx.moveTo(x, y + 20);
+      this.ctx.lineTo(x + 30, y + 20);
+      this.ctx.stroke();
+    }
+    
+    // Windows on right wall
+    for (let i = 0; i < 3; i++) {
+      const x = offsetX + this.tileWidth * 3 + i * this.tileWidth * 1.5;
+      const y = offsetY + this.tileHeight + i * this.tileHeight;
+      
+      this.ctx.fillStyle = '#5AABAB';
+      this.ctx.strokeStyle = '#2A6B6B';
+      this.ctx.lineWidth = 2;
+      this.ctx.fillRect(x, y, 30, 40);
+      this.ctx.strokeRect(x, y, 30, 40);
+      
+      // Window panes
+      this.ctx.strokeStyle = '#2A6B6B';
+      this.ctx.lineWidth = 1;
+      this.ctx.beginPath();
+      this.ctx.moveTo(x + 15, y);
+      this.ctx.lineTo(x + 15, y + 40);
+      this.ctx.moveTo(x, y + 20);
+      this.ctx.lineTo(x + 30, y + 20);
+      this.ctx.stroke();
+    }
+  },
+  
+  drawDecorations() {
+    const offsetX = this.canvas.width / 2;
+    const offsetY = 100;
+    
+    // Draw plants
+    this.drawPlant(offsetX - 200, offsetY + 200);
+    this.drawPlant(offsetX + 200, offsetY + 200);
+    
+    // Draw lamps
+    this.drawLamp(offsetX - 150, offsetY + 150);
+    this.drawLamp(offsetX + 150, offsetY + 150);
+    
+    // Draw sofa
+    this.drawSofa(offsetX, offsetY + 300);
+  },
+  
+  drawPlant(x, y) {
+    // Pot
+    this.ctx.fillStyle = '#8B4513';
+    this.ctx.strokeStyle = '#2A6B6B';
+    this.ctx.lineWidth = 2;
+    this.ctx.fillRect(x - 15, y + 20, 30, 25);
+    this.ctx.strokeRect(x - 15, y + 20, 30, 25);
+    
+    // Leaves
+    this.ctx.fillStyle = '#4A8B4A';
+    for (let i = 0; i < 5; i++) {
+      const angle = (i * Math.PI * 2) / 5 - Math.PI / 2;
+      const leafX = x + Math.cos(angle) * 20;
+      const leafY = y + Math.sin(angle) * 20;
+      
+      this.ctx.beginPath();
+      this.ctx.arc(leafX, leafY, 12, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.strokeStyle = '#2A6B6B';
+      this.ctx.lineWidth = 1;
+      this.ctx.stroke();
+    }
+  },
+  
+  drawLamp(x, y) {
+    // Lamp post
+    this.ctx.fillStyle = '#FFD700';
+    this.ctx.strokeStyle = '#2A6B6B';
+    this.ctx.lineWidth = 2;
+    this.ctx.fillRect(x - 3, y, 6, 40);
+    this.ctx.strokeRect(x - 3, y, 6, 40);
+    
+    // Lamp shade
+    this.ctx.fillStyle = '#FFA500';
+    this.ctx.beginPath();
+    this.ctx.arc(x, y, 15, 0, Math.PI * 2);
+    this.ctx.fill();
+    this.ctx.stroke();
+    
+    // Light glow
+    const gradient = this.ctx.createRadialGradient(x, y, 0, x, y, 40);
+    gradient.addColorStop(0, 'rgba(255, 215, 0, 0.3)');
+    gradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+    this.ctx.fillStyle = gradient;
+    this.ctx.beginPath();
+    this.ctx.arc(x, y, 40, 0, Math.PI * 2);
+    this.ctx.fill();
+  },
+  
+  drawSofa(x, y) {
+    // Sofa base
+    this.ctx.fillStyle = '#FF6B6B';
+    this.ctx.strokeStyle = '#2A6B6B';
+    this.ctx.lineWidth = 2;
+    this.ctx.fillRect(x - 60, y, 120, 40);
+    this.ctx.strokeRect(x - 60, y, 120, 40);
+    
+    // Sofa back
+    this.ctx.fillRect(x - 60, y - 20, 120, 20);
+    this.ctx.strokeRect(x - 60, y - 20, 120, 20);
+    
+    // Sofa arms
+    this.ctx.fillRect(x - 70, y - 10, 10, 40);
+    this.ctx.strokeRect(x - 70, y - 10, 10, 40);
+    this.ctx.fillRect(x + 60, y - 10, 10, 40);
+    this.ctx.strokeRect(x + 60, y - 10, 10, 40);
   },
 
   drawCharacter(char) {
     const sprite = Character.createSprite(char.character, 50);
     const x = char.character.position.x;
     const y = char.character.position.y;
+
+    // Draw shadow
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    this.ctx.beginPath();
+    this.ctx.ellipse(x, y + 20, 20, 10, 0, 0, Math.PI * 2);
+    this.ctx.fill();
 
     // Draw character sprite
     this.ctx.drawImage(sprite, x - 25, y - 25);
