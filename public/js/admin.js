@@ -192,9 +192,14 @@ const Admin = {
       return;
     }
 
+    // Get canvas dimensions
+    const canvas = document.getElementById('townCanvas');
+    const canvasWidth = canvas ? canvas.width : 800;
+    const canvasHeight = canvas ? canvas.height : 600;
+
     // Clamp values between 0 and canvas size
-    const clampedX = Math.max(0, Math.min(800, x));
-    const clampedY = Math.max(0, Math.min(600, y));
+    const clampedX = Math.max(0, Math.min(canvasWidth, x));
+    const clampedY = Math.max(0, Math.min(canvasHeight, y));
 
     try {
       await api.moveCharacter(userId, clampedX, clampedY);
