@@ -97,6 +97,19 @@
                     
                     <div id="adminActions" class="hidden">
                         <h4>Position</h4>
+                        <div class="coordinates-section">
+                            <div class="coord-inputs">
+                                <div class="coord-field">
+                                    <label for="coord-x">X:</label>
+                                    <input type="number" id="coord-x" min="0" max="800" step="1" placeholder="X">
+                                </div>
+                                <div class="coord-field">
+                                    <label for="coord-y">Y:</label>
+                                    <input type="number" id="coord-y" min="0" max="600" step="1" placeholder="Y">
+                                </div>
+                            </div>
+                            <button id="update-coords-btn" class="btn-small">Apply Coordinates</button>
+                        </div>
                         <button id="moveCharacterBtn" class="btn-small">Enable Move Mode</button>
                         <p class="hint">Click on the town to move character</p>
 
