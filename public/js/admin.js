@@ -47,7 +47,7 @@ const Admin = {
     selectedDiv.innerHTML = '<em>No character selected</em>';
     actionsDiv.classList.add('hidden');
     moveBtn.textContent = 'Enable Move Mode';
-    window.Town.setMoveMode(false);
+    Town.setMoveMode(false);
   },
 
   toggleMoveMode() {
@@ -58,21 +58,21 @@ const Admin = {
 
     if (isEnabled) {
       moveBtn.textContent = 'Enable Move Mode';
-      window.Town.setMoveMode(false);
+      Town.setMoveMode(false);
     } else {
       moveBtn.textContent = 'Disable Move Mode';
-      window.Town.setMoveMode(true);
+      Town.setMoveMode(true);
     }
   },
 
   async moveCharacterTo(userId, x, y) {
     try {
       await api.moveCharacter(userId, x, y);
-      await window.Town.loadCharacters();
+      await Town.loadCharacters();
       
       // Update selected character display
       if (this.selectedCharacter && this.selectedCharacter.id === userId) {
-        const updatedChar = window.Town.characters.find(c => c.id === userId);
+        const updatedChar = Town.characters.find(c => c.id === userId);
         if (updatedChar) {
           this.selectCharacter(updatedChar);
         }
@@ -96,11 +96,11 @@ const Admin = {
     try {
       await api.addTrait(this.selectedCharacter.id, trait);
       input.value = '';
-      await window.Town.loadCharacters();
+      await Town.loadCharacters();
       
-      const updatedChar = window.Town.characters.find(c => c.id === this.selectedCharacter.id);
+      const updatedChar = Town.characters.find(c => c.id === this.selectedCharacter.id);
       if (updatedChar) {
-        window.Town.selectCharacter(updatedChar);
+        Town.selectCharacter(updatedChar);
       }
     } catch (error) {
       alert('Failed to add trait: ' + error.message);
@@ -121,11 +121,11 @@ const Admin = {
     try {
       await api.addItem(this.selectedCharacter.id, item);
       input.value = '';
-      await window.Town.loadCharacters();
+      await Town.loadCharacters();
       
-      const updatedChar = window.Town.characters.find(c => c.id === this.selectedCharacter.id);
+      const updatedChar = Town.characters.find(c => c.id === this.selectedCharacter.id);
       if (updatedChar) {
-        window.Town.selectCharacter(updatedChar);
+        Town.selectCharacter(updatedChar);
       }
     } catch (error) {
       alert('Failed to add item: ' + error.message);
@@ -146,11 +146,11 @@ const Admin = {
     try {
       await api.addHistory(this.selectedCharacter.id, entry);
       input.value = '';
-      await window.Town.loadCharacters();
+      await Town.loadCharacters();
       
-      const updatedChar = window.Town.characters.find(c => c.id === this.selectedCharacter.id);
+      const updatedChar = Town.characters.find(c => c.id === this.selectedCharacter.id);
       if (updatedChar) {
-        window.Town.selectCharacter(updatedChar);
+        Town.selectCharacter(updatedChar);
       }
     } catch (error) {
       alert('Failed to add history: ' + error.message);
@@ -171,11 +171,11 @@ const Admin = {
     try {
       await api.addInteraction(this.selectedCharacter.id, message);
       input.value = '';
-      await window.Town.loadCharacters();
+      await Town.loadCharacters();
       
-      const updatedChar = window.Town.characters.find(c => c.id === this.selectedCharacter.id);
+      const updatedChar = Town.characters.find(c => c.id === this.selectedCharacter.id);
       if (updatedChar) {
-        window.Town.selectCharacter(updatedChar);
+        Town.selectCharacter(updatedChar);
       }
     } catch (error) {
       alert('Failed to add interaction: ' + error.message);

@@ -111,7 +111,7 @@ const Auth = {
 
       // Show character customization modal
       authModal.classList.add('hidden');
-      window.Character.showCustomizationModal(async (characterData) => {
+      Character.showCustomizationModal(async (characterData) => {
         const result = await this.register(username, password, characterData);
         if (result.success) {
           window.app.showTownView();

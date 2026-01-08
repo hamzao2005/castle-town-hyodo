@@ -233,8 +233,8 @@ const Town = {
     this.render();
     this.showCharacterInfo(char);
     
-    if (Auth.isAdmin()) {
-      window.Admin.selectCharacter(char);
+    if (Auth.isAdmin() && typeof Admin !== 'undefined') {
+      Admin.selectCharacter(char);
     }
   },
 
@@ -243,8 +243,8 @@ const Town = {
     this.render();
     this.hideCharacterInfo();
     
-    if (Auth.isAdmin()) {
-      window.Admin.deselectCharacter();
+    if (Auth.isAdmin() && typeof Admin !== 'undefined') {
+      Admin.deselectCharacter();
     }
   },
 

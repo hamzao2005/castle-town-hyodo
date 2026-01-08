@@ -90,8 +90,8 @@ const Character = {
     };
 
     // Update preview when selections change
-    colorSelect.addEventListener('change', () => this.updatePreview());
-    styleSelect.addEventListener('change', () => this.updatePreview());
+    colorSelect.addEventListener('change', () => Character.updatePreview());
+    styleSelect.addEventListener('change', () => Character.updatePreview());
 
     saveBtn.addEventListener('click', async () => {
       clearError();
@@ -104,17 +104,20 @@ const Character = {
         message: document.getElementById('characterMessage').value.trim() || 'Hello!'
       };
 
-      if (this.callback) {
-        // Registration flow
-        this.hideCustomizationModal();
-        await this.callback(characterData);
+      if (Character.callback) {
+        // Registration flow - save callback before hiding modal
+        const callback = Character.callback;
+        Character.hideCustomizationModal();
+        await callback(characterData);
       } else {
         // Update existing character
         try {
           const result = await api.updateMyCharacter(characterData);
           Auth.currentUser = result;
-          this.hideCustomizationModal();
-          window.Town.loadCharacters();
+          Character.hideCustomizationModal();
+          if (typeof Town !== 'undefined') {
+            Town.loadCharacters();
+          }
         } catch (error) {
           showError(error.message);
         }
@@ -122,10 +125,10 @@ const Character = {
     });
 
     cancelBtn.addEventListener('click', () => {
-      this.hideCustomizationModal();
+      Character.hideCustomizationModal();
       
       // If this was during registration, show auth modal again
-      if (this.callback) {
+      if (Character.callback) {
         Auth.showAuthModal();
       }
     });
