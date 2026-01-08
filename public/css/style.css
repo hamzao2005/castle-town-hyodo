@@ -384,37 +384,3 @@ label {
         opacity: 1;
     }
 }
-
-/* Isometric View Styles */
-.iso-floor-tile {
-    position: absolute;
-    width: 64px;
-    height: 32px;
-    background: #4A9B9B;
-    border: 1px solid #2A6B6B;
-    transform-origin: center;
-}
-
-.iso-floor-tile.alt {
-    background: #5AABAB;
-}
-
-.iso-wall {
-    position: absolute;
-    background: #7ECFC0;
-    border: 2px solid #2A6B6B;
-}
-
-.iso-decoration {
-    position: absolute;
-    image-rendering: pixelated;
-}
-
-/* Isometric character shadow */
-.iso-character-shadow {
-    position: absolute;
-    background: radial-gradient(ellipse, rgba(0, 0, 0, 0.3), transparent);
-    width: 40px;
-    height: 20px;
-    border-radius: 50%;
-}

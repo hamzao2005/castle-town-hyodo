@@ -18,11 +18,7 @@ const Character = {
 
     // Draw body
     ctx.fillStyle = color;
-    if (style === 'round') {
-      ctx.fillRect(size * 0.25, size * 0.35, size * 0.5, size * 0.4);
-    } else {
-      ctx.fillRect(size * 0.25, size * 0.35, size * 0.5, size * 0.4);
-    }
+    ctx.fillRect(size * 0.25, size * 0.35, size * 0.5, size * 0.4);
     
     // Draw outline for body
     ctx.strokeStyle = '#2a2a4a';
