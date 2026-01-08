@@ -4,7 +4,6 @@ const Town = {
   ctx: null,
   characters: [],
   selectedCharacter: null,
-  moveMode: false,
   refreshInterval: null,
   
   // Isometric settings
@@ -365,12 +364,6 @@ const Town = {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    // If in move mode, move the selected character
-    if (this.moveMode && this.selectedCharacter && Auth.isAdmin()) {
-      window.Admin.moveCharacterTo(this.selectedCharacter.id, x, y);
-      return;
-    }
-
     // Check if clicked on a character
     let clicked = null;
     for (const char of this.characters) {
@@ -467,11 +460,6 @@ const Town = {
   hideCharacterInfo() {
     const panel = document.getElementById('infoPanel');
     panel.classList.add('hidden');
-  },
-
-  setMoveMode(enabled) {
-    this.moveMode = enabled;
-    this.canvas.style.cursor = enabled ? 'crosshair' : 'pointer';
   },
 
   cleanup() {

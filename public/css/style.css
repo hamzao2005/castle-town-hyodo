@@ -310,6 +310,48 @@ label {
     margin: 5px 0;
 }
 
+/* Coordinates Section */
+.coordinates-section {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.coord-inputs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.coord-field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.coord-field label {
+    font-size: 7px;
+    color: #ffd700;
+}
+
+.coord-field input {
+    width: 100%;
+    padding: 8px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 8px;
+    background: #0a0a1a;
+    border: 2px solid #7c5cbf;
+    color: #ffffff;
+    text-align: center;
+}
+
+.coord-field input:focus {
+    border-color: #ffd700;
+    outline: none;
+}
+
 /* Scrollbar Styling */
 ::-webkit-scrollbar {
     width: 10px;
