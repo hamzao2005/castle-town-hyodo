@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Castle Town Hub - Deltarune Inspired</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Auth Modal -->
+        <div id="authModal" class="modal">
+            <div class="modal-content">
+                <h2 id="authTitle">Welcome to Castle Town</h2>
+                <div id="authForm">
+                    <input type="text" id="username" placeholder="Username" autocomplete="username">
+                    <input type="password" id="password" placeholder="Password" autocomplete="current-password">
+                    <div id="authError" class="error"></div>
+                    <button id="loginBtn" class="btn">Login</button>
+                    <button id="registerBtn" class="btn btn-secondary">Register</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Character Customization Modal -->
+        <div id="characterModal" class="modal hidden">
+            <div class="modal-content">
+                <h2>Customize Your Character</h2>
+                <div id="characterForm">
+                    <div class="preview-container">
+                        <canvas id="characterPreview" width="100" height="100"></canvas>
+                    </div>
+                    
+                    <label for="characterColor">Color:</label>
+                    <select id="characterColor">
+                        <option value="#8b5fbf">Purple</option>
+                        <option value="#5f8bbf">Blue</option>
+                        <option value="#bf5f8b">Pink</option>
+                        <option value="#5fbf8b">Green</option>
+                        <option value="#bf8b5f">Orange</option>
+                        <option value="#bf5f5f">Red</option>
+                    </select>
+
+                    <label for="characterStyle">Style:</label>
+                    <select id="characterStyle">
+                        <option value="round">Round</option>
+                        <option value="square">Square</option>
+                    </select>
+
+                    <label for="characterDescription">Description:</label>
+                    <textarea id="characterDescription" placeholder="A brief description of your character..." maxlength="200"></textarea>
+
+                    <label for="characterParticularity">Particularity:</label>
+                    <input type="text" id="characterParticularity" placeholder="What makes you special?" maxlength="100">
+
+                    <label for="characterMessage">Speech Bubble:</label>
+                    <input type="text" id="characterMessage" placeholder="Your message to the world..." maxlength="100">
+
+                    <div id="characterError" class="error"></div>
+                    <button id="saveCharacterBtn" class="btn">Save Character</button>
+                    <button id="cancelCharacterBtn" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Town View -->
+        <div id="townView" class="hidden">
+            <div id="townContainer">
+                <canvas id="townCanvas"></canvas>
+            </div>
+
+            <!-- Top Bar -->
+            <div id="topBar">
+                <div id="userInfo">
+                    <span id="currentUser"></span>
+                    <button id="editCharacterBtn" class="btn-small">Edit Character</button>
+                    <button id="logoutBtn" class="btn-small">Logout</button>
+                </div>
+            </div>
+
+            <!-- Info Panel -->
+            <div id="infoPanel" class="hidden">
+                <button id="closeInfoBtn" class="close-btn">×</button>
+                <h3 id="infoPanelName"></h3>
+                <div id="infoPanelContent"></div>
+            </div>
+
+            <!-- Admin Panel -->
+            <div id="adminPanel" class="hidden">
+                <h3>Admin Controls</h3>
+                <div id="adminControls">
+                    <p>Click on a character to select them</p>
+                    <div id="selectedCharacter"></div>
+                    
+                    <div id="adminActions" class="hidden">
+                        <h4>Position</h4>
+                        <button id="moveCharacterBtn" class="btn-small">Enable Move Mode</button>
+                        <p class="hint">Click on the town to move character</p>
+
+                        <h4>Add Trait</h4>
+                        <input type="text" id="traitInput" placeholder="New trait..." maxlength="100">
+                        <button id="addTraitBtn" class="btn-small">Add Trait</button>
+
+                        <h4>Add Item</h4>
+                        <input type="text" id="itemInput" placeholder="New item..." maxlength="100">
+                        <button id="addItemBtn" class="btn-small">Add Item</button>
+
+                        <h4>Add History</h4>
+                        <textarea id="historyInput" placeholder="History entry..." maxlength="200"></textarea>
+                        <button id="addHistoryBtn" class="btn-small">Add History</button>
+
+                        <h4>Add Interaction</h4>
+                        <textarea id="interactionInput" placeholder="Interaction message..." maxlength="200"></textarea>
+                        <button id="addInteractionBtn" class="btn-small">Add Interaction</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/character.js"></script>
+    <script src="/js/town.js"></script>
+    <script src="/js/admin.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>
