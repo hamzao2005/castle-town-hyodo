@@ -6,6 +6,8 @@ const path = require('path');
 const authRoutes = require('./routes/auth');
 const characterRoutes = require('./routes/characters');
 const adminRoutes = require('./routes/admin');
+const categoryRoutes = require('./routes/categories');
+const galleryRoutes = require('./routes/gallery');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,6 +24,8 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use('/api/auth', authRoutes);
 app.use('/api/characters', characterRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/gallery', galleryRoutes);
 
 // Serve index.html for all other routes (SPA support)
 app.get('*', (req, res) => {
