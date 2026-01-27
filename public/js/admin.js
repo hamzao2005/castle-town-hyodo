@@ -334,5 +334,274 @@ const Admin = {
     } catch (error) {
       alert('Failed to add interaction: ' + error.message);
     }
+  },
+
+  // New NPC creation
+  async createNPC() {
+    const nameInput = document.getElementById('new-player-name');
+    const descInput = document.getElementById('new-player-description');
+    
+    const name = nameInput.value.trim();
+    const description = descInput.value.trim();
+
+    if (!name) {
+      alert('Please enter a name for the NPC');
+      return;
+    }
+
+    try {
+      await api.createNPC(name, description);
+      nameInput.value = '';
+      descInput.value = '';
+      await Town.loadCharacters();
+      alert('NPC created successfully!');
+    } catch (error) {
+      alert('Failed to create NPC: ' + error.message);
+    }
+  },
+
+  // Golden hearts management
+  async updateHearts(delta) {
+    if (!this.selectedCharacter) return;
+
+    const currentHearts = this.selectedCharacter.character.goldenHearts || 0;
+    const newHearts = Math.max(0, currentHearts + delta);
+
+    try {
+      await api.updateHearts(this.selectedCharacter.id, newHearts);
+      await Town.loadCharacters();
+      
+      const updatedChar = Town.characters.find(c => c.id === this.selectedCharacter.id);
+      if (updatedChar) {
+        Town.selectCharacter(updatedChar);
+      }
+      
+      this.updateHeartsDisplay();
+    } catch (error) {
+      alert('Failed to update hearts: ' + error.message);
+    }
+  },
+
+  updateHeartsDisplay() {
+    const heartsCount = document.getElementById('hearts-count');
+    if (heartsCount && this.selectedCharacter) {
+      heartsCount.textContent = this.selectedCharacter.character.goldenHearts || 0;
+    }
+  },
+
+  // Category assignment
+  async assignCategory() {
+    if (!this.selectedCharacter) return;
+
+    const categorySelect = document.getElementById('player-category');
+    const categoryId = categorySelect.value || null;
+
+    try {
+      await api.assignCategory(this.selectedCharacter.id, categoryId);
+      await Town.loadCharacters();
+      
+      const updatedChar = Town.characters.find(c => c.id === this.selectedCharacter.id);
+      if (updatedChar) {
+        Town.selectCharacter(updatedChar);
+      }
+      
+      alert('Category assigned successfully!');
+    } catch (error) {
+      alert('Failed to assign category: ' + error.message);
+    }
+  },
+
+  async loadCategoryOptions() {
+    const categorySelect = document.getElementById('player-category');
+    if (!categorySelect) return;
+
+    try {
+      const categories = await api.getAllCategories();
+      
+      categorySelect.innerHTML = '<option value="">Sans catégorie</option>';
+      categories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat.id;
+        option.textContent = `${cat.icon} ${cat.name}`;
+        categorySelect.appendChild(option);
+      });
+
+      // Select current category if any
+      if (this.selectedCharacter && this.selectedCharacter.character.categoryId) {
+        categorySelect.value = this.selectedCharacter.character.categoryId;
+      }
+    } catch (error) {
+      console.error('Failed to load categories:', error);
+    }
+  },
+
+  // Costume upload for admin
+  async uploadCostume() {
+    if (!this.selectedCharacter) return;
+
+    const fileInput = document.getElementById('admin-costume-upload');
+    const file = fileInput.files[0];
+
+    if (!file) {
+      alert('Please select an image file');
+      return;
+    }
+
+    try {
+      const compressedImage = await Gallery.compressImage(file);
+      await api.updateCostumeAdmin(this.selectedCharacter.id, compressedImage);
+      
+      fileInput.value = '';
+      await Town.loadCharacters();
+      
+      const updatedChar = Town.characters.find(c => c.id === this.selectedCharacter.id);
+      if (updatedChar) {
+        Town.selectCharacter(updatedChar);
+      }
+      
+      alert('Costume updated successfully!');
+    } catch (error) {
+      alert('Failed to upload costume: ' + error.message);
+    }
+  },
+
+  async removeCostume() {
+    if (!this.selectedCharacter) return;
+
+    try {
+      await api.updateCostumeAdmin(this.selectedCharacter.id, null);
+      await Town.loadCharacters();
+      
+      const updatedChar = Town.characters.find(c => c.id === this.selectedCharacter.id);
+      if (updatedChar) {
+        Town.selectCharacter(updatedChar);
+      }
+      
+      alert('Costume removed successfully!');
+    } catch (error) {
+      alert('Failed to remove costume: ' + error.message);
+    }
+  },
+
+  // Category management
+  async createCategory() {
+    const nameInput = document.getElementById('new-category-name');
+    const colorInput = document.getElementById('new-category-color');
+    
+    const name = nameInput.value.trim();
+    const color = colorInput.value;
+
+    if (!name) {
+      alert('Please enter a category name');
+      return;
+    }
+
+    try {
+      await api.createCategory(name, color, '🏠');
+      nameInput.value = '';
+      colorInput.value = '#7c5cbf';
+      
+      await Categories.loadCategories();
+      await this.loadCategoryOptions();
+      await Town.render();
+      
+      alert('Category created successfully!');
+    } catch (error) {
+      alert('Failed to create category: ' + error.message);
+    }
+  },
+
+  async deleteCategory(categoryId) {
+    if (!confirm('Are you sure you want to delete this category?')) return;
+
+    try {
+      await api.deleteCategory(categoryId);
+      await Categories.loadCategories();
+      await this.loadCategoryOptions();
+      await Town.render();
+      
+      alert('Category deleted successfully!');
+    } catch (error) {
+      alert('Failed to delete category: ' + error.message);
+    }
+  },
+
+  renderCategoriesList() {
+    const listContainer = document.getElementById('categories-list');
+    if (!listContainer || typeof Categories === 'undefined') return;
+
+    listContainer.innerHTML = '';
+    
+    Categories.categories.forEach(cat => {
+      const catDiv = document.createElement('div');
+      catDiv.className = 'category-item';
+      catDiv.innerHTML = `
+        <span style="color: ${cat.color}">${cat.icon} ${cat.name}</span>
+        <button class="btn-small delete-category-btn" data-id="${cat.id}">Delete</button>
+      `;
+      listContainer.appendChild(catDiv);
+      
+      const deleteBtn = catDiv.querySelector('.delete-category-btn');
+      deleteBtn.addEventListener('click', () => this.deleteCategory(cat.id));
+    });
+  },
+
+  // Gallery management
+  async uploadGalleryImage() {
+    const fileInput = document.getElementById('gallery-upload');
+    const files = fileInput.files;
+
+    if (files.length === 0) {
+      alert('Please select at least one image');
+      return;
+    }
+
+    try {
+      for (let file of files) {
+        const compressedImage = await Gallery.compressImage(file);
+        await api.addGalleryImage(compressedImage, file.name);
+      }
+      
+      fileInput.value = '';
+      await Gallery.loadImages();
+      await Town.render();
+      
+      alert(`${files.length} image(s) uploaded successfully!`);
+    } catch (error) {
+      alert('Failed to upload gallery image: ' + error.message);
+    }
+  },
+
+  async deleteGalleryImage(imageId) {
+    if (!confirm('Are you sure you want to delete this image?')) return;
+
+    try {
+      await Gallery.deleteImage(imageId);
+      await Town.render();
+      alert('Image deleted successfully!');
+    } catch (error) {
+      alert('Failed to delete image: ' + error.message);
+    }
+  },
+
+  renderGalleryList() {
+    const listContainer = document.getElementById('gallery-images-list');
+    if (!listContainer || typeof Gallery === 'undefined') return;
+
+    listContainer.innerHTML = '';
+    
+    Gallery.images.forEach(img => {
+      const imgDiv = document.createElement('div');
+      imgDiv.className = 'gallery-item';
+      imgDiv.innerHTML = `
+        <img src="${img.data}" alt="${img.title}" style="width: 50px; height: 50px; object-fit: cover;">
+        <span>${img.title || 'Untitled'}</span>
+        <button class="btn-small delete-gallery-btn" data-id="${img.id}">Delete</button>
+      `;
+      listContainer.appendChild(imgDiv);
+      
+      const deleteBtn = imgDiv.querySelector('.delete-gallery-btn');
+      deleteBtn.addEventListener('click', () => this.deleteGalleryImage(img.id));
+    });
   }
 };
