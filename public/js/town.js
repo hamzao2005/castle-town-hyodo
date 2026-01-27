@@ -226,10 +226,25 @@ const Town = {
     if (typeof Gallery !== 'undefined' && Gallery.images && Gallery.images.length > 0) {
       const currentImage = Gallery.images[Gallery.currentIndex];
       if (currentImage && currentImage.data) {
-        const img = new Image();
-        img.src = currentImage.data;
-        // Draw image fitting in the frame
-        this.ctx.drawImage(img, x - 85, y - 5, 170, 120);
+        // Use cached image or create new one
+        if (!currentImage._imgCache) {
+          const img = new Image();
+          img.src = currentImage.data;
+          currentImage._imgCache = img;
+          // Redraw when image loads
+          img.onload = () => this.render();
+        }
+        
+        // Only draw if image is loaded
+        if (currentImage._imgCache.complete && currentImage._imgCache.naturalHeight !== 0) {
+          this.ctx.drawImage(currentImage._imgCache, x - 85, y - 5, 170, 120);
+        } else {
+          // Placeholder while loading
+          this.ctx.fillStyle = '#999';
+          this.ctx.font = '10px Arial';
+          this.ctx.textAlign = 'center';
+          this.ctx.fillText('Loading...', x, y + 55);
+        }
       }
     } else {
       // Placeholder text
@@ -326,10 +341,23 @@ const Town = {
 
     // Check if character has custom costume
     if (char.character.costumeImage) {
-      // Draw custom costume image
-      const img = new Image();
-      img.src = char.character.costumeImage;
-      this.ctx.drawImage(img, x - 25, y - 25, 50, 50);
+      // Use cached image or create new one
+      if (!char._costumeImgCache) {
+        const img = new Image();
+        img.src = char.character.costumeImage;
+        char._costumeImgCache = img;
+        // Redraw when image loads
+        img.onload = () => this.render();
+      }
+      
+      // Only draw if image is loaded
+      if (char._costumeImgCache.complete && char._costumeImgCache.naturalHeight !== 0) {
+        this.ctx.drawImage(char._costumeImgCache, x - 25, y - 25, 50, 50);
+      } else {
+        // Draw default sprite while loading
+        const sprite = Character.createSprite(char.character, 50);
+        this.ctx.drawImage(sprite, x - 25, y - 25);
+      }
     } else {
       // Draw default sprite
       const sprite = Character.createSprite(char.character, 50);

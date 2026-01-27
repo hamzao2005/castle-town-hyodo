@@ -14,32 +14,33 @@ class Gallery {
       await fs.access(DATA_FILE);
     } catch {
       await fs.mkdir(path.dirname(DATA_FILE), { recursive: true });
-      await fs.writeFile(DATA_FILE, JSON.stringify({ images: [] }, null, 2));
+      await fs.writeFile(DATA_FILE, JSON.stringify([], null, 2));
     }
   }
 
   async readGallery() {
     await this.ensureDataFile();
     const data = await fs.readFile(DATA_FILE, 'utf8');
-    return JSON.parse(data);
+    const parsed = JSON.parse(data);
+    // Handle both array format and object format for backwards compatibility
+    return Array.isArray(parsed) ? parsed : (parsed.images || []);
   }
 
-  async writeGallery(gallery) {
-    await fs.writeFile(DATA_FILE, JSON.stringify(gallery, null, 2));
+  async writeGallery(images) {
+    await fs.writeFile(DATA_FILE, JSON.stringify(images, null, 2));
   }
 
   async findAll() {
-    const gallery = await this.readGallery();
-    return gallery.images || [];
+    return await this.readGallery();
   }
 
   async findById(id) {
-    const images = await this.findAll();
+    const images = await this.readGallery();
     return images.find(image => image.id === id);
   }
 
   async create(imageData) {
-    const gallery = await this.readGallery();
+    const images = await this.readGallery();
     
     const newImage = {
       id: uuidv4(),
@@ -48,15 +49,14 @@ class Gallery {
       addedAt: new Date().toISOString()
     };
 
-    gallery.images.push(newImage);
-    await this.writeGallery(gallery);
+    images.push(newImage);
+    await this.writeGallery(images);
     
     return newImage;
   }
 
   async updateOrder(imageIds) {
-    const gallery = await this.readGallery();
-    const images = gallery.images;
+    const images = await this.readGallery();
     
     // Reorder images based on provided IDs
     const reorderedImages = [];
@@ -74,22 +74,21 @@ class Gallery {
       }
     });
     
-    gallery.images = reorderedImages;
-    await this.writeGallery(gallery);
+    await this.writeGallery(reorderedImages);
     
-    return gallery.images;
+    return reorderedImages;
   }
 
   async delete(id) {
-    const gallery = await this.readGallery();
-    const originalLength = gallery.images.length;
-    gallery.images = gallery.images.filter(image => image.id !== id);
+    const images = await this.readGallery();
+    const originalLength = images.length;
+    const filteredImages = images.filter(image => image.id !== id);
     
-    if (gallery.images.length === originalLength) {
+    if (filteredImages.length === originalLength) {
       return false;
     }
 
-    await this.writeGallery(gallery);
+    await this.writeGallery(filteredImages);
     return true;
   }
 }

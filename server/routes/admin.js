@@ -1,5 +1,4 @@
 const express = require('express');
-const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const { adminAuth } = require('../middleware/auth');
 const { sanitize } = require('../utils/sanitize');
