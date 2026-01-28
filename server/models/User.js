@@ -54,6 +54,7 @@ class User {
       username: userData.username,
       password: userData.password,
       isAdmin: isFirstUser || isAdminUsername,
+      isNPC: userData.isNPC || false,
       character: {
         name: userData.username,
         color: userData.character?.color || '#8b5fbf',
@@ -65,6 +66,9 @@ class User {
           x: Math.floor(Math.random() * 600) + 50,
           y: Math.floor(Math.random() * 300) + 200
         },
+        goldenHearts: 0,
+        categoryId: null,
+        costumeImage: null,
         traits: [],
         items: [],
         history: [],

@@ -174,5 +174,63 @@ const Character = {
     document.getElementById('characterMessage').value = character.message || 'Hello!';
 
     this.showCustomizationModal(null);
+  },
+
+  // Costume upload for users
+  async uploadCostume() {
+    const fileInput = document.getElementById('costume-upload');
+    const file = fileInput.files[0];
+
+    if (!file) {
+      alert('Please select an image file');
+      return;
+    }
+
+    try {
+      const compressedImage = await Gallery.compressImage(file);
+      const result = await api.updateMyCostume(compressedImage);
+      
+      Auth.currentUser = result;
+      fileInput.value = '';
+      
+      if (typeof Town !== 'undefined') {
+        Town.loadCharacters();
+      }
+      
+      this.updateCostumePreview(compressedImage);
+      alert('Costume uploaded successfully!');
+    } catch (error) {
+      alert('Failed to upload costume: ' + error.message);
+    }
+  },
+
+  async removeCostume() {
+    try {
+      const result = await api.updateMyCostume(null);
+      
+      Auth.currentUser = result;
+      
+      if (typeof Town !== 'undefined') {
+        Town.loadCharacters();
+      }
+      
+      this.updateCostumePreview(null);
+      alert('Costume removed successfully!');
+    } catch (error) {
+      alert('Failed to remove costume: ' + error.message);
+    }
+  },
+
+  updateCostumePreview(imageData) {
+    const preview = document.getElementById('costume-preview');
+    if (preview) {
+      if (imageData) {
+        preview.src = imageData;
+        preview.style.display = 'block';
+      } else {
+        preview.src = '';
+        preview.style.display = 'none';
+      }
+    }
   }
 };

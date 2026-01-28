@@ -5,6 +5,118 @@ const { sanitize } = require('../utils/sanitize');
 
 const router = express.Router();
 
+// Create NPC player
+router.post('/create-player', adminAuth, async (req, res) => {
+  try {
+    const { name, description, color, style } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ error: 'Player name is required' });
+    }
+
+    // Check if username already exists
+    const existingUser = await User.findByUsername(name);
+    if (existingUser) {
+      return res.status(400).json({ error: 'Player name already exists' });
+    }
+
+    const npcData = {
+      username: name,
+      password: null, // NPCs don't have passwords
+      isNPC: true,
+      character: {
+        color: color || '#8b5fbf',
+        style: style || 'round',
+        description: description ? sanitize(description) : '',
+        message: 'Hello!'
+      }
+    };
+
+    const newNPC = await User.create(npcData);
+    
+    const { password: _, ...npcWithoutPassword } = newNPC;
+    res.json(npcWithoutPassword);
+  } catch (error) {
+    console.error('Create NPC error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Update golden hearts
+router.put('/hearts/:userId', adminAuth, async (req, res) => {
+  try {
+    const { hearts } = req.body;
+
+    if (typeof hearts !== 'number' || hearts < 0) {
+      return res.status(400).json({ error: 'Invalid hearts value' });
+    }
+
+    const user = await User.findById(req.params.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const updatedUser = await User.updateCharacter(req.params.userId, {
+      goldenHearts: hearts
+    });
+
+    const { password: _, ...userWithoutPassword } = updatedUser;
+    res.json(userWithoutPassword);
+  } catch (error) {
+    console.error('Update hearts error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Assign category to character
+router.put('/assign-category/:userId', adminAuth, async (req, res) => {
+  try {
+    const { categoryId } = req.body;
+
+    const user = await User.findById(req.params.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const updatedUser = await User.updateCharacter(req.params.userId, {
+      categoryId: categoryId || null
+    });
+
+    const { password: _, ...userWithoutPassword } = updatedUser;
+    res.json(userWithoutPassword);
+  } catch (error) {
+    console.error('Assign category error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Update character costume (admin)
+router.put('/costume/:userId', adminAuth, async (req, res) => {
+  try {
+    const { costumeImage } = req.body;
+
+    const user = await User.findById(req.params.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Validate base64 image data if provided
+    if (costumeImage && !costumeImage.startsWith('data:image/')) {
+      return res.status(400).json({ error: 'Invalid image data format' });
+    }
+
+    const updatedUser = await User.updateCharacter(req.params.userId, {
+      costumeImage: costumeImage || null
+    });
+
+    const { password: _, ...userWithoutPassword } = updatedUser;
+    res.json(userWithoutPassword);
+  } catch (error) {
+    console.error('Update costume error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Move character
 router.put('/move/:userId', adminAuth, async (req, res) => {
   try {

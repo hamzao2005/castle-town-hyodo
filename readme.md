@@ -1,23 +1,62 @@
 # 🏰 Castle Town Hub
 
-A web-based game inspired by Deltarune's Castle Town concept. Create your character, customize them, and see them displayed in a shared town with other users!
+A web-based game inspired by Deltarune's Castle Town concept. Create your character, customize them with unique costumes, and see them displayed in a vibrant open town with other users! Admins can organize the town with categories, manage a public gallery, and create NPCs.
 
 ## ✨ Features
 
 ### For Users
 - ✅ User registration and login with JWT authentication
 - ✅ Character creation and customization (color, style, description)
+- ✅ **NEW:** Upload custom costume images for your character
 - ✅ Add personality traits and speech bubbles to your character
-- ✅ View all characters in the shared Castle Town
+- ✅ View all characters in the shared open town
+- ✅ Browse the town's public gallery with image navigation
 - ✅ Characters are displayed with their custom appearance and messages
-- ❌ Users cannot move or interact (admin-only feature)
 
 ### For Administrators
-- ✅ Move characters anywhere in the town
+- ✅ **NEW:** Create NPC (Non-Player Characters) without user accounts
+- ✅ **NEW:** Award golden hearts (💛) to characters
+- ✅ **NEW:** Create and manage categories (houses) for organizing characters
+- ✅ **NEW:** Assign characters to categories
+- ✅ **NEW:** Manage the town gallery (upload/delete images)
+- ✅ **NEW:** Upload custom costumes for any character
+- ✅ Move characters anywhere in the town (with coordinates or move mode)
 - ✅ Add personality traits to characters
 - ✅ Add items to character inventories
 - ✅ Write character history entries
 - ✅ Add interaction messages to characters
+
+## 🎨 New Town Features
+
+### Open Town View
+The game now features a vibrant open town instead of the previous isometric room:
+- 🌤️ **Sky with clouds** - Beautiful animated clouds
+- 🌳 **Trees** - Decorative trees throughout the town
+- 💡 **Streetlights** - Illuminated streetlights for ambiance
+- 🛣️ **Streets** - Road with yellow lane markings
+- 🏠 **Category Houses** - Each category gets a unique colored house
+- 🖼️ **Gallery Wall** - Central display showing the current gallery image
+
+### Golden Hearts System
+Admins can award golden hearts to characters which appear above their sprites as a badge of honor.
+
+### Category System
+Organize characters into categories (e.g., "Merchants", "Guards", "Citizens"):
+- Each category gets a unique colored house in the town
+- Characters can be assigned to categories
+- Houses display the category emoji and name
+
+### Gallery Wall
+A central billboard in the town displays images from the gallery:
+- Navigate with ◀ ▶ buttons
+- Admins can upload/delete images
+- Images are automatically compressed for performance
+
+### Custom Costumes
+Both users and admins can upload custom character images:
+- Images replace the default sprite
+- Automatically compressed to 500KB
+- Supports all common image formats
 
 ## 🚀 Quick Start
 
@@ -103,31 +142,62 @@ http://localhost:3000
 
 As an admin, you have access to the Admin Panel:
 
-1. **Move Characters:**
+1. **Create NPCs:**
+   - Enter a name and description
+   - Click "Créer" to create an NPC
+   - NPCs appear in the town like regular characters but have no login
+
+2. **Award Golden Hearts:**
+   - Select a character
+   - Click + or - to adjust their golden hearts count
+   - Hearts display above the character
+
+3. **Manage Categories:**
+   - Create new categories with custom names and colors
+   - Each category gets a house in the town
+   - Delete categories as needed
+
+4. **Assign Characters to Categories:**
+   - Select a character
+   - Choose a category from the dropdown
+   - Click "Assigner" to assign
+
+5. **Manage Gallery:**
+   - Upload images (supports multiple at once)
+   - Images appear on the central gallery wall
+   - Delete images from the admin panel
+
+6. **Upload Costumes:**
+   - Select a character
+   - Choose an image file
+   - Click "Appliquer" to set the custom costume
+   - Click "Retirer" to remove it
+
+7. **Move Characters:**
    - Click on a character to select them
-   - Click "Enable Move Mode"
-   - Click anywhere in the town to move the character
+   - Enter X and Y coordinates and click "Apply Coordinates"
+   - OR click "Enable Move Mode" and click on the town canvas
    - Click "Disable Move Mode" when done
 
-2. **Add Traits:**
+8. **Add Traits:**
    - Select a character
    - Enter a trait in the "Add Trait" field
    - Click "Add Trait"
 
-3. **Add Items:**
+9. **Add Items:**
    - Select a character
    - Enter an item in the "Add Item" field
    - Click "Add Item"
 
-4. **Add History:**
-   - Select a character
-   - Enter a history entry
-   - Click "Add History"
+10. **Add History:**
+    - Select a character
+    - Enter a history entry
+    - Click "Add History"
 
-5. **Add Interactions:**
-   - Select a character
-   - Enter an interaction message
-   - Click "Add Interaction"
+11. **Add Interactions:**
+    - Select a character
+    - Enter an interaction message
+    - Click "Add Interaction"
 
 ## 🏗️ Architecture
 
@@ -137,13 +207,19 @@ As an admin, you have access to the Admin Panel:
 server/
 ├── index.js              # Main server file
 ├── models/
-│   └── User.js          # User model with JSON storage
+│   ├── User.js          # User model with JSON storage
+│   ├── Category.js      # Category model
+│   └── Gallery.js       # Gallery model
 ├── middleware/
 │   └── auth.js          # JWT authentication middleware
+├── utils/
+│   └── sanitize.js      # Input sanitization
 └── routes/
     ├── auth.js          # Authentication routes
     ├── characters.js    # Character routes
-    └── admin.js         # Admin routes
+    ├── admin.js         # Admin routes
+    ├── categories.js    # Category routes
+    └── gallery.js       # Gallery routes
 ```
 
 ### Frontend (Vanilla JavaScript)
@@ -157,7 +233,9 @@ public/
     ├── api.js          # API client
     ├── auth.js         # Authentication module
     ├── character.js    # Character customization module
-    ├── town.js         # Town rendering module
+    ├── town.js         # Town rendering module (open town view)
+    ├── categories.js   # Category management module
+    ├── gallery.js      # Gallery display and management
     ├── admin.js        # Admin controls module
     └── app.js          # Main application entry point
 ```
@@ -172,12 +250,18 @@ public/
 
 ## 🎨 Visual Design
 
-Inspired by Deltarune's pixel art style:
+Inspired by Deltarune's pixel art style with a vibrant open town:
 - **Font:** Press Start 2P (retro pixel font)
 - **Color Scheme:** Purple and gold theme
-- **Background:** Starry night sky gradient
-- **Buildings:** Pixel art castle, shop, and house
-- **Characters:** Customizable round or square sprites with eyes
+- **Background:** Open sky with animated clouds
+- **Town Elements:** 
+  - Green grass ground
+  - Gray streets with yellow markings
+  - Trees and streetlights
+  - Category houses with custom colors
+  - Central gallery wall with golden frame
+- **Characters:** Customizable round or square sprites with eyes, or custom costume images
+- **Golden Hearts:** Award badge displayed above characters
 - **Speech Bubbles:** White bubbles with custom messages
 
 ## 📝 API Endpoints
@@ -194,22 +278,43 @@ Inspired by Deltarune's pixel art style:
 - `PUT /api/characters/me` - Update own character
 
 ### Admin (Protected)
+- `POST /api/admin/create-player` - Create NPC character
+- `PUT /api/admin/hearts/:userId` - Update character's golden hearts
+- `PUT /api/admin/assign-category/:userId` - Assign character to category
+- `PUT /api/admin/costume/:userId` - Update character's costume (admin)
 - `PUT /api/admin/move/:userId` - Move a character
 - `POST /api/admin/trait/:userId` - Add trait to character
 - `POST /api/admin/item/:userId` - Add item to character
 - `POST /api/admin/history/:userId` - Add history entry
 - `POST /api/admin/interact/:userId` - Add interaction
 
+### Categories
+- `GET /api/categories` - Get all categories
+- `GET /api/categories/:id` - Get specific category
+- `POST /api/categories` - Create category (admin)
+- `PUT /api/categories/:id` - Update category (admin)
+- `DELETE /api/categories/:id` - Delete category (admin)
+
+### Gallery
+- `GET /api/gallery` - Get all gallery images
+- `GET /api/gallery/:id` - Get specific image
+- `POST /api/gallery` - Add image to gallery (admin)
+- `PUT /api/gallery/order` - Reorder gallery images (admin)
+- `DELETE /api/gallery/:id` - Delete gallery image (admin)
+
 ## 🗄️ Data Storage
 
-User data is stored in `server/data/users.json` in the following format:
+Data is stored in JSON files in `server/data/`:
+
+### Users (`users.json`)
 
 ```json
 {
   "id": "uuid",
   "username": "string",
-  "password": "hashed",
+  "password": "hashed (null for NPCs)",
   "isAdmin": boolean,
+  "isNPC": boolean,
   "character": {
     "name": "string",
     "color": "hex-color",
@@ -218,6 +323,9 @@ User data is stored in `server/data/users.json` in the following format:
     "particularity": "string",
     "message": "string",
     "position": { "x": number, "y": number },
+    "goldenHearts": number,
+    "categoryId": "uuid|null",
+    "costumeImage": "base64|null",
     "traits": [],
     "items": [],
     "history": [],
@@ -225,6 +333,32 @@ User data is stored in `server/data/users.json` in the following format:
   },
   "createdAt": "ISO date"
 }
+```
+
+### Categories (`categories.json`)
+
+```json
+{
+  "id": "uuid",
+  "name": "string",
+  "color": "hex-color",
+  "icon": "emoji",
+  "position": { "x": number, "y": number },
+  "createdAt": "ISO date"
+}
+```
+
+### Gallery (`gallery.json`)
+
+```json
+[
+  {
+    "id": "uuid",
+    "data": "base64-image-data",
+    "title": "string",
+    "addedAt": "ISO date"
+  }
+]
 ```
 
 ## 🛠️ Development

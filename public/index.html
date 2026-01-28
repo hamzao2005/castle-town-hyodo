@@ -59,6 +59,16 @@
                     <label for="characterMessage">Speech Bubble:</label>
                     <input type="text" id="characterMessage" placeholder="Your message to the world..." maxlength="100">
 
+                    <div class="option-group">
+                        <label>👕 Tenue personnalisée</label>
+                        <div class="costume-upload">
+                            <img id="costume-preview" src="" alt="Aperçu tenue" style="display:none; width:100px; height:100px; object-fit:cover; margin:10px 0;">
+                            <input type="file" id="costume-upload" accept="image/*">
+                            <button id="upload-costume-btn" class="btn-small" type="button">Importer</button>
+                            <button id="remove-costume-btn" class="btn-small" type="button">Retirer</button>
+                        </div>
+                    </div>
+
                     <div id="characterError" class="error"></div>
                     <button id="saveCharacterBtn" class="btn">Save Character</button>
                     <button id="cancelCharacterBtn" class="btn btn-secondary">Cancel</button>
@@ -70,6 +80,18 @@
         <div id="townView" class="hidden">
             <div id="townContainer">
                 <canvas id="townCanvas"></canvas>
+            </div>
+
+            <!-- Gallery Wall Controls (visible to all) -->
+            <div id="gallery-wall" style="display:none;">
+                <div id="gallery-display">
+                    <button id="gallery-prev" class="gallery-nav">◀</button>
+                    <div id="gallery-image-container">
+                        <img id="current-gallery-image" src="" alt="Gallery" style="max-width:100%; max-height:100%; display:none;">
+                    </div>
+                    <button id="gallery-next" class="gallery-nav">▶</button>
+                </div>
+                <div id="gallery-indicators"></div>
             </div>
 
             <!-- Top Bar -->
@@ -92,10 +114,45 @@
             <div id="adminPanel" class="hidden">
                 <h3>Admin Controls</h3>
                 <div id="adminControls">
+                    <!-- NPC Creation -->
+                    <div class="admin-section">
+                        <h5>➕ Ajouter un habitant</h5>
+                        <input type="text" id="new-player-name" placeholder="Nom du personnage" maxlength="50">
+                        <input type="text" id="new-player-description" placeholder="Description" maxlength="200">
+                        <button id="add-player-btn" class="btn-small">Créer</button>
+                    </div>
+
                     <p>Click on a character to select them</p>
                     <div id="selectedCharacter"></div>
                     
                     <div id="adminActions" class="hidden">
+                        <!-- Golden Hearts -->
+                        <div class="admin-section">
+                            <h5>💛 Cœurs Dorés</h5>
+                            <div class="hearts-control">
+                                <button id="remove-heart-btn" class="btn-small">-</button>
+                                <span id="hearts-count">0</span>
+                                <button id="add-heart-btn" class="btn-small">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Category Assignment -->
+                        <div class="admin-section">
+                            <h5>🏠 Catégorie</h5>
+                            <select id="player-category">
+                                <option value="">Sans catégorie</option>
+                            </select>
+                            <button id="assign-category-btn" class="btn-small">Assigner</button>
+                        </div>
+
+                        <!-- Costume Upload (Admin) -->
+                        <div class="admin-section">
+                            <h5>👕 Tenue</h5>
+                            <input type="file" id="admin-costume-upload" accept="image/*">
+                            <button id="admin-upload-costume-btn" class="btn-small">Appliquer</button>
+                            <button id="admin-remove-costume-btn" class="btn-small">Retirer</button>
+                        </div>
+
                         <h4>Position</h4>
                         <div class="coordinates-section">
                             <div class="coord-inputs">
@@ -129,6 +186,27 @@
                         <textarea id="interactionInput" placeholder="Interaction message..." maxlength="200"></textarea>
                         <button id="addInteractionBtn" class="btn-small">Add Interaction</button>
                     </div>
+
+                    <!-- Category Management -->
+                    <div id="categories-panel" class="admin-section">
+                        <h4>🏠 Catégories</h4>
+                        <div id="categories-list"></div>
+                        <div class="add-category">
+                            <input type="text" id="new-category-name" placeholder="Nom de la catégorie" maxlength="50">
+                            <input type="color" id="new-category-color" value="#7c5cbf">
+                            <button id="add-category-btn" class="btn-small">Créer</button>
+                        </div>
+                    </div>
+
+                    <!-- Gallery Management -->
+                    <div id="gallery-admin-panel" class="admin-section">
+                        <h4>🖼️ Galerie du Mur</h4>
+                        <div id="gallery-images-list"></div>
+                        <div class="upload-section">
+                            <input type="file" id="gallery-upload" accept="image/*" multiple>
+                            <button id="upload-gallery-btn" class="btn-small">Ajouter des images</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -137,6 +215,8 @@
     <script src="/js/api.js"></script>
     <script src="/js/auth.js"></script>
     <script src="/js/character.js"></script>
+    <script src="/js/categories.js"></script>
+    <script src="/js/gallery.js"></script>
     <script src="/js/town.js"></script>
     <script src="/js/admin.js"></script>
     <script src="/js/app.js"></script>

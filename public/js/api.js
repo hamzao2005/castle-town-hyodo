@@ -104,6 +104,34 @@ class API {
     });
   }
 
+  async createNPC(name, description, color, style) {
+    return await this.request('/admin/create-player', {
+      method: 'POST',
+      body: JSON.stringify({ name, description, color, style })
+    });
+  }
+
+  async updateHearts(userId, hearts) {
+    return await this.request(`/admin/hearts/${userId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ hearts })
+    });
+  }
+
+  async assignCategory(userId, categoryId) {
+    return await this.request(`/admin/assign-category/${userId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ categoryId })
+    });
+  }
+
+  async updateCostumeAdmin(userId, costumeImage) {
+    return await this.request(`/admin/costume/${userId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ costumeImage })
+    });
+  }
+
   async addTrait(userId, trait) {
     return await this.request(`/admin/trait/${userId}`, {
       method: 'POST',
@@ -129,6 +157,68 @@ class API {
     return await this.request(`/admin/interact/${userId}`, {
       method: 'POST',
       body: JSON.stringify({ message })
+    });
+  }
+
+  // Category endpoints
+  async getAllCategories() {
+    return await this.request('/categories');
+  }
+
+  async getCategory(id) {
+    return await this.request(`/categories/${id}`);
+  }
+
+  async createCategory(name, color, icon, position) {
+    return await this.request('/categories', {
+      method: 'POST',
+      body: JSON.stringify({ name, color, icon, position })
+    });
+  }
+
+  async updateCategory(id, updates) {
+    return await this.request(`/categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates)
+    });
+  }
+
+  async deleteCategory(id) {
+    return await this.request(`/categories/${id}`, {
+      method: 'DELETE'
+    });
+  }
+
+  // Gallery endpoints
+  async getAllGalleryImages() {
+    return await this.request('/gallery');
+  }
+
+  async addGalleryImage(data, title) {
+    return await this.request('/gallery', {
+      method: 'POST',
+      body: JSON.stringify({ data, title })
+    });
+  }
+
+  async reorderGallery(imageIds) {
+    return await this.request('/gallery/order', {
+      method: 'PUT',
+      body: JSON.stringify({ imageIds })
+    });
+  }
+
+  async deleteGalleryImage(id) {
+    return await this.request(`/gallery/${id}`, {
+      method: 'DELETE'
+    });
+  }
+
+  // Character costume
+  async updateMyCostume(costumeImage) {
+    return await this.request('/characters/me/costume', {
+      method: 'PUT',
+      body: JSON.stringify({ costumeImage })
     });
   }
 

@@ -77,4 +77,32 @@ router.put('/me', auth, async (req, res) => {
   }
 });
 
+// Update own costume (authenticated)
+router.put('/me/costume', auth, async (req, res) => {
+  try {
+    const { costumeImage } = req.body;
+
+    // Validate base64 image data if provided
+    if (costumeImage && !costumeImage.startsWith('data:image/')) {
+      return res.status(400).json({ error: 'Invalid image data format' });
+    }
+
+    const updatedUser = await User.updateCharacter(req.user.id, {
+      costumeImage: costumeImage || null
+    });
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Remove password from response
+    const { password: _, ...userWithoutPassword } = updatedUser;
+
+    res.json(userWithoutPassword);
+  } catch (error) {
+    console.error('Update costume error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 module.exports = router;
